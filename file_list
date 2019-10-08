@@ -1,0 +1,39 @@
+import pandas as pd
+import boto3
+from io import BytesIO, TextIOWrapper
+import awss3fs
+import gzip
+
+s3 = awss3fs.S3FileSystem(anon=False)
+s3r = boto3.resource('s3')
+s3c = boto3.client('s3')
+source_bucket = s3r.Bucket("jq-ada-dev-dst-responsys")
+dest_bucket = "test-jq-ada-dev-marketing"
+
+
+buffer = BytesIO()
+
+for object_summary in source_bucket.objects.filter(Prefix="group/v1/sent/2019/01/01"):
+    location = 's3://{}/{}'.format('jq-ada-dev-dst-responsys', object_summary.key)
+    df = pd.read_csv(location, compression='gzip', header=0, sep=',', quotechar='"')
+    df = df.groupby('CAMPAIGN_ID')['CAMPAIGN_ID'].count().reset_index(name='emails sent').reindex(columns=['CAMPAIGN_ID', 'emails sent'])
+    df['CAMPAIGN_ID'] = df['CAMPAIGN_ID'].astype(str)
+    #folder = list(df.CAMPAIGN_ID)
+    last_slash = object_summary.key.rfind('/')
+    folder = object_summary.key[:last_slash+1]
+    s3_url = 's3://' + dest_bucket + '/' + object_summary.key
+    s3_file = object_summary.key[last_slash+1:]
+
+
+
+    print(s3_url)
+    print(object_summary.key)
+    #print(df.dtypes)
+    s3c.put_object(Bucket='test-jq-ada-dev-marketing', Key=(folder))
+    #df.to_csv(s3_url , index=False,compression='gzip')
+
+    df.to_csv(s3_file, index=False, compression='gzip')
+    #s3c.upload_file(s3_file, 'test-jq-ada-dev-marketing',object_summary.key)
+
+
+

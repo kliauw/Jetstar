@@ -1,0 +1,31 @@
+import pandas as pd
+import boto3
+s3r = boto3.resource('s3')
+
+source_bkt = s3r.Bucket('jq-ada-dev-dst-adobe')
+client = boto3.client('s3')
+
+
+paginator = client.get_paginator('list_objects_v2')
+result = paginator.paginate(Bucket='jq-ada-dev-dst-adobe',Prefix='group/v1/hit_data')
+
+
+for page in result:
+    if "Contents" in page:
+        for key in page[ "Contents" ]:
+            keyString = key[ "Key" ]
+            print(keyString)
+            location = 's3://{}/{}'.format('jq-ada-dev-dst-adobe', keyString)
+            print(location)
+            #key_part = location[44:location.rfind('/')]
+            #print(key_part)
+            #dframe = pd.read_csv(location, compression='gzip', header=0, sep=',', quotechar='"')
+            # if dframe.empty != 'True':
+            #     dframe = dframe.groupby('CAMPAIGN_ID')['CAMPAIGN_ID'].count().reset_index(name=type).reindex(columns=['CAMPAIGN_ID', type])
+            #     dframe['CAMPAIGN_ID'] = dframe['CAMPAIGN_ID'].astype(str)
+
+
+
+
+
+
