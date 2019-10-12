@@ -8,7 +8,6 @@ import boto3
 count = 0
 dst_bucket = "jq-ada-dev-dst-adobe"
 s3 = S3FileSystem()
-s3c = boto3.client('s3')
 type_regex='(?P<bucket>[a-z-]{1,50})/group/v1/(?P<dtype>[a-z_]{1,50})'
 path_regex='(?P<bucket>[a-z-]{1,50})/group/v1/(?P<dtype>[a-z_]{1,50})/(?P<Year>[0-9]{4})/(?P<Month>[0-9]{2})/(?P<Day>[0-9]{2})/(?P<Hour>[0-9]{2})'
 #path_regex='(?P<bucket>[a-z-]{1,50})/group/v1/(?P<dtype>[a-z_]{1,50})/(?P<Year>[0-9]{4})/(?P<Month>[0-9]{2})/(?P<Day>[0-9]{2})/(?P<Hour>[0-9]{2})/(?P<YearMD>[0-9]{6})_(?P<Time>[0-9]{2,6})'
@@ -31,10 +30,10 @@ def create_dataframes(location, type):
             dframe = pd.DataFrame()
     return dframe
 
-x=''
+#x=''
 
 for year in s3.ls('/'.join([dst_bucket, "group/v1/hit_data"])):
-    if x in year:
+    #if x in year:
      #print(year)
         for month in s3.ls(year):
             #print(month)
@@ -51,19 +50,20 @@ for year in s3.ls('/'.join([dst_bucket, "group/v1/hit_data"])):
                         d = re.search(path_regex, hour).group(5)
                         h = re.search(path_regex, hour).group(6)
 
-                        mystring = csv_file.replace(hour,'')
-                        mystring = mystring.split("_")
-                        t = mystring[1]
-                        if 'mobileapp' in csv_file:
-                            app = Y + m+ d + '_' + t + '_adobeanalytics_group_jetstarmobileappprd_hit_data_v1.csv.gz'
-                        else:
-                            app = Y + m+ d + '_' + t + '_adobeanalytics_group_jetstarprd_hit_data_v1.csv.gz'
-                        print("app var"+app)
+                        #mystring = csv_file.replace(hour,'')
+                        #mystring = mystring.split("_")
+                        # t = mystring[1]
+                        # if 'mobileapp' in csv_file:
+                        #     app = Y + m+ d + '_' + t + '_adobeanalytics_group_jetstarmobileappprd_hit_data_v1.csv.gz'
+                        # else:
+                        #     app = Y + m+ d + '_' + t + '_adobeanalytics_group_jetstarprd_hit_data_v1.csv.gz'
+                        # print("app var"+app)
                         location = ''
+                        location = 's3://' + csv_file
                         #location = location.join(s3.ls('/'.join([dst_bucket, "group/v1/hit_data/" + Y + "/" + m + "/" + d + "/" + h + "/"])))
-                        location = dst_bucket + "/group/v1/hit_data/" + Y + "/" + m + "/" + d + "/" + h + "/" + app
+                        #location = dst_bucket + "/group/v1/hit_data/" + Y + "/" + m + "/" + d + "/" + h + "/" + app
                         #location = s3.ls('/'.join([dst_bucket, "group/v1/hit_data/" + Y + "/" + m + "/" + d + "/" + h]))
-                        location = 's3://' + location
+                        #location = 's3://' + location
                         print(location)
                         #combo_df = create_dataframes(location, 'hit_data')
                         #dframe = pd.read_csv(location, compression='gzip', header=0, sep=',', quotechar='"')
