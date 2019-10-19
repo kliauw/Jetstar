@@ -35,8 +35,8 @@ for year in s3.ls('/'.join([dst_bucket, "group/v1/sent"])):
                 d = re.search(path_regex, day).group(5)
                 location = s3.ls('/'.join([dst_bucket, "group/v1/sent", Y, m, d]))
                 new_location = '/'.join(['test-jq-ada-dev-marketing', "group/v1/responsys", Y, m, d])
-                if not s3.ls(new_location):
-
+                #if not s3.ls(new_location):
+                if 1==1:
                     location = 's3://' + location[0]
                     combo_df = create_dataframes('sent', location)
 
@@ -54,10 +54,11 @@ for year in s3.ls('/'.join([dst_bucket, "group/v1/sent"])):
                                 type_df = create_dataframes(type,location)
                                 if not type_df.empty:
                                     combo_df = pd.merge(combo_df, type_df, on='CAMPAIGN_ID', how='outer')
+                                    print(combo_df)
                                 else:
                                     combo_df[type] = ''
 
-                                    print(combo_df)
+
                         except Exception:
                             # Add blank column
                             combo_df[type]=''
@@ -65,5 +66,5 @@ for year in s3.ls('/'.join([dst_bucket, "group/v1/sent"])):
 
                         file_string = Y+m+d + '_responsys_marketing.csv.gz'
                         combo_df.to_csv(file_string, index=False, compression='gzip')
-                        s3.put(file_string, '/'.join(['test-jq-ada-dev-marketing/group/v1/responsys', Y, m, d, file_string]))
+                        #s3.put(file_string, '/'.join(['jq-ada-dev-marketing-test/group/v1/responsys', Y, m, d, file_string]))
 
